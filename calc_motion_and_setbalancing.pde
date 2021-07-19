@@ -44,5 +44,5 @@ void calcyawshm() {
 }
 
 void setupbalancing() {
-  setpoint_balancing = new PVector(0.01, 0.01, 0.01);
+  setpoint_balancing = new PVector(0.04, 0.04, 0.01);
 }
