@@ -116,6 +116,43 @@ void Butstop() {
   buttonsendstate = 0;
 }
 
+void Butdown() {
+  int d = day();
+  int m = month();
+  int y = year();
+  int h = hour();
+  int min = minute();
+  int s   = second();
+  
+  filename = "data/1_SP_Datalog" + str(d) + "-" + str(m)+ "-"+ str(y) + "--" + str(h) + "-" + str(min) + "-" + str(s) + ".csv";
+  saveTable(table, filename);
+}
+
+void Butrecord(boolean theFlag) {
+  if(theFlag == true) {
+    recordpress = true;
+  } else {
+    recordpress = false;
+  }
+}
+
+void butconnect() {
+  gui.butdisconnect.bringToFront();
+  // setup serial comm
+  if(serial == null) {
+  serial = new Serial(this, "COM3", 115200);
+  }
+  //stateactivebuttonserial = true;
+}
+
+void butdisconnect() {
+  gui.butconnect.bringToFront();
+  if(serial != null) {
+    serial.stop();
+    serial = null;
+  }
+}
+
 // digital translasional dan rotasional
 void plusX(){ gui.plusX();}
 void minusX(){ gui.minusX(); }
