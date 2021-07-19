@@ -3,16 +3,16 @@ import processing.serial.*;
 import controlP5.*;
 import peasy.*;
 
-// define maximum trans and rot
-float MAX_TRANSLASI = 50;
-float MAX_ROTASI = (PI/10); 
-
 // define class
-Serial serial; 
+Serial serial = null; 
 ControlP5 cp5;
 PeasyCam camera;
 stewartplatform xPlatform;
 GUI gui;
+
+// define maximum trans and rot
+float MAX_TRANSLASI = 30;
+float MAX_ROTASI = radians(18); 
 
 // define input variable
 float posX = 0, posY = 0, posZ = 0, rotX = 0, rotY = 0, rotZ = 0;
@@ -35,14 +35,16 @@ long eventInterval = 50, previousTime = 0;
 
 int numbermotion = 0;
 float t = 0.0, dt = 0.1;
-float frequency = radians(30);
-PVector outplanar, outprecession, outverticalshm, outrollshm, outpitchshm, outyawshm, setpoint_balancing, rawdatain;
+float frequency = radians(50);
+PVector outplanar, outprecession, outverticalshm, outrollshm, outpitchshm, outyawshm, setpoint_balancing, rawdatain, rawdatain2;
 
 String[] Sendconvdata;
 int buttonsendstate = 0;
 
+Table table; boolean recordpress; String filename;
+
 void setup() {
-  // size windows deskX, deskY
+  background(0);
   size(1280, 900, P3D);   //1024 768
   smooth();
   frameRate(60);
@@ -60,12 +62,18 @@ void setup() {
   
   cp5    = new ControlP5(this);
   gui    = new GUI();
+  table  = new Table();
   
+  // GUI setup init
   gui.GUIsetup();
   cp5.setAutoDraw(false);
+  rectMode(CENTER);
   
-  // setup serial comm
-  serial = new Serial(this, "COM3", 115200);
+  // table config
+  table.addColumn("ROLL");
+  table.addColumn("PITCH");
+  table.addColumn("YAW");
+  table.addColumn("Time");
 }
 
 void draw() {
@@ -74,45 +82,45 @@ void draw() {
   background(0);
   surface.setTitle("Stewart platform GUI v1.0");
   
-  // calculate HARMONIC MOTION PLANNING
+ // calculate HARMONIC MOTION PLANNING
   if(numbermotion == 1) {
      calcplanar();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(outplanar.x, outplanar.y, 0), MAX_TRANSLASI),
-     PVector.mult(new PVector(0, 0, 0), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*outplanar.x, outplanar.y, 0), Mult_TRANSLASI),
+     PVector.mult(new PVector(0, 0, 0), Mult_ROTASI));
      convertdata(outplanar.x, outplanar.y, 0, 0, 0, 0, 0);
    }
    else if(numbermotion == 2) {
      calcprecession();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), MAX_TRANSLASI),
-     PVector.mult(new PVector(outprecession.x, -1 * outprecession.y, 0), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), Mult_TRANSLASI),
+     PVector.mult(new PVector(outprecession.x, -1 * outprecession.y, 0), Mult_ROTASI));
      convertdata(0, 0, 0, outprecession.x, outprecession.y, 0, 0);
    }
    else if(numbermotion == 3) {
      calcverticalshm();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(outverticalshm.x, outverticalshm.y, outverticalshm.z), MAX_TRANSLASI),
-     PVector.mult(new PVector(0, 0, 0), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(outverticalshm.x, outverticalshm.y, outverticalshm.z), Mult_TRANSLASI),
+     PVector.mult(new PVector(0, 0, 0), Mult_ROTASI));
      convertdata(outverticalshm.x, outverticalshm.y, outverticalshm.z, 0, 0, 0, 0);
    }
    else if(numbermotion == 4) {
      calcrollshm();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), MAX_TRANSLASI),
-     PVector.mult(new PVector(outrollshm.x, outrollshm.y, outrollshm.z), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), Mult_TRANSLASI),
+     PVector.mult(new PVector(outrollshm.x, outrollshm.y, outrollshm.z), Mult_ROTASI));
      convertdata(0, 0, 0, outrollshm.x, outrollshm.y, outrollshm.z, 0);
    }
    else if(numbermotion == 5) {
      calcpitchshm();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), MAX_TRANSLASI),
-     PVector.mult(new PVector(outpitchshm.x, outpitchshm.y, outpitchshm.z), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), Mult_TRANSLASI),
+     PVector.mult(new PVector(outpitchshm.x, -1*outpitchshm.y, outpitchshm.z), Mult_ROTASI));
      convertdata(0, 0, 0, outpitchshm.x, outpitchshm.y, outpitchshm.z, 0);
    }
    else if(numbermotion == 6) {
      calcyawshm();
-     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), MAX_TRANSLASI),
-     PVector.mult(new PVector(outyawshm.x, outyawshm.y, outyawshm.z), MAX_ROTASI));
+     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(0, 0, 0), Mult_TRANSLASI),
+     PVector.mult(new PVector(outyawshm.x, outyawshm.y, -1*outyawshm.z), Mult_ROTASI));
      convertdata(0, 0, 0, outyawshm.x, outyawshm.y, outyawshm.z, 0);
    }
    
-   // FOR SELF BALANCING INPUT DATA
+// FOR SELF BALANCING INPUT DATA
    else if(numbermotion == 7) {
      setupbalancing();
      convertdata(0, 0, 0, setpoint_balancing.x, setpoint_balancing.y, setpoint_balancing.z, 1);
@@ -120,13 +128,13 @@ void draw() {
   
   //  SLIDER CONTROL INPUT
   if(togglestate == true && numbermotion == 0) {
-    xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(posX, posY, posZ), MAX_TRANSLASI),
-    PVector.mult(new PVector(rotX, -1 * rotY, rotZ), MAX_ROTASI));
+    xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*posX, posY, posZ), Mult_TRANSLASI),
+    PVector.mult(new PVector(rotX, -1 * rotY, -1*rotZ), Mult_ROTASI));
     convertdata(posX, posY, posZ, rotX, rotY, rotZ,0);
   }
     else if(togglestate == false && numbermotion == 0) {
-      xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(digiX, digiY, digiZ), MAX_TRANSLASI),
-      PVector.mult(new PVector(digiRoll, -1*digiPitch, digiYaw), MAX_ROTASI));
+      xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*digiX, digiY, digiZ), Mult_TRANSLASI),
+      PVector.mult(new PVector(digiRoll, -1*digiPitch, -1*digiYaw), Mult_ROTASI));
       convertdata(digiX, digiY, digiZ, digiRoll, digiPitch, digiYaw,0);
   }
 
@@ -147,8 +155,7 @@ void draw() {
   }
   
   // monitoring update nilai input ke tampilan numberbox
-  gui.coordinateX(togglestate);gui.coordinateY(togglestate);gui.coordinateZ(togglestate);
-  gui.attitudeRoll(togglestate);gui.attitudePitch(togglestate);gui.attitudeYaw(togglestate);
+  GUIvalueinputbutton();
   
   // monitor servo rotation in degree
   float[] servo = xPlatform.getAlpha();
@@ -156,6 +163,7 @@ void draw() {
   
   // monitor response roll, pitch, yaw
   incomingmpu6050();
+  datarealtime();
   
   // visualisasi 3D stewart platform
   xPlatform.draw();
@@ -166,6 +174,7 @@ void draw() {
   hint(DISABLE_DEPTH_TEST);
   camera.beginHUD();
   cp5.draw();
+  gui.copyrightGUI();
   camera.endHUD();
   hint(ENABLE_DEPTH_TEST);
 }
@@ -183,13 +192,15 @@ void serialEvent(Serial serial) {
     }
 
     datamasuk = float(split(usbString, ','));
-    float satu  = datamasuk[0];
-    float dua   = datamasuk[1];
-    float tiga  = datamasuk[2];
-    float empat = datamasuk[3];
-    float lima  = datamasuk[4];
+    float satu  = datamasuk[0];  // roll
+    float dua   = datamasuk[1];  // pitch
+    float tiga  = datamasuk[2];  // yaw
+    float empat = datamasuk[3];  // PID roll
+    float lima  = datamasuk[4];  // PID yaw
     
-    rawdatain = new PVector(satu,dua,tiga);
+    rawdatain  = new PVector(satu,dua,tiga);
+    rawdatain2 = new PVector(empat,lima,0.01);
+    
     print("Debug PID = ");print(empat);print(","); print(lima); print(" || "); print("Debug IMU = "); print(satu); print(","); print(dua); print(","); print(tiga); 
     println();
   }
@@ -209,6 +220,23 @@ void incomingmpu6050() {
   catch(RuntimeException e) {
     //null
   }
+}
+
+void datarealtime() {
+  try {
+      gui.rollvalue.setValue(rawdatain.x);
+      gui.pitchvalue.setValue(rawdatain.y);
+      gui.yawvalue.setValue(rawdatain.z);
+      gui.PIDx.setValue(rawdatain2.x);
+      gui.PIDy.setValue(rawdatain2.y);
+  }
+  catch(RuntimeException e) {
+  }
+}
+
+void GUIvalueinputbutton() {
+  gui.coordinateX(togglestate);gui.coordinateY(togglestate);gui.coordinateZ(togglestate);
+  gui.attitudeRoll(togglestate);gui.attitudePitch(togglestate);gui.attitudeYaw(togglestate);
 }
  
 void controlEvent(ControlEvent theEvent) {
