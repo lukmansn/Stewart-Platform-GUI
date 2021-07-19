@@ -9,6 +9,8 @@ class GUI {
   Button BplusRoll; Button BplusPitch; Button BplusYaw; Button BminusRoll; Button BminusPitch; Button BminusYaw;
   Knob knobserv1; Knob knobserv2; Knob knobserv3; Knob knobserv4; Knob knobserv5; Knob knobserv6;
   Chart chartroll; Chart chartpitch; Chart chartyaw;
+  Numberbox rollvalue; Numberbox pitchvalue; Numberbox yawvalue; Numberbox PIDx; Numberbox PIDy;
+  Button butconnect; Button butdisconnect;
   
   public void GUIsetup() {
   int paddingX, paddingY, paddingX1, paddingY1, paddinggrupX, paddinggrupY;
@@ -16,20 +18,24 @@ class GUI {
   paddingX1=0; paddingY1=20;
   paddinggrupX = -30; paddinggrupY = -40;
   paddingX = -20; paddingY = -30;
-  PImage[] plus = {loadImage("plusbutton.png"), loadImage("plusbutton1.png"), loadImage("plusbuttonback.png")};
-  PImage[] minus = {loadImage("minusbutton.png"), loadImage("minusbutton1.png"), loadImage("minusbuttonback.png")};
-  PImage[] play = {loadImage("play1.png"), loadImage("play2.png"), loadImage("play3.png")};
-  PImage[] resetImg = {loadImage("reset1.png"), loadImage("reset2.png"), loadImage("reset3.png")};
-  PImage[] stop = {loadImage("stop1.png"), loadImage("stop2.png"), loadImage("stop3.png")};
-  PImage[] tombolview1 = {loadImage("view3d.png"), loadImage("view3d2.png"), loadImage("view3d3.png")};
-  PImage[] tombolview2 = {loadImage("tampakdepan.png"), loadImage("tampakdepan2.png"), loadImage("tampakdepan3.png")};
-  PImage[] tombolview3 = {loadImage("tampakbelakang.png"), loadImage("tampakbelakang2.png"), loadImage("tampakbelakang3.png")};
-  PImage[] tombolview4 = {loadImage("tampakkanan.png"), loadImage("tampakkanan2.png"), loadImage("tampakkanan3.png")};
-  PImage[] tombolview5 = {loadImage("tampakkiri.png"), loadImage("tampakkiri2.png"), loadImage("tampakkiri3.png")};
-  PImage[] tombolview6 = {loadImage("tampakatas.png"), loadImage("tampakatas2.png"), loadImage("tampakatas3.png")};
-  PImage[] tombolview7 = {loadImage("tampakbawah.png"), loadImage("tampakbawah2.png"), loadImage("tampakbawah3.png")};
-  PImage[] tombolview8 = {loadImage("eye1.png"), loadImage("eye2.png"), loadImage("eye3.png")};
-  PImage[] titlebar = {loadImage("titlebar.png"),loadImage("titlebar.png"),loadImage("titlebar.png")};
+  PImage[] plus           = {loadImage("plusbutton.png"), loadImage("plusbutton1.png"), loadImage("plusbuttonback.png")};
+  PImage[] minus          = {loadImage("minusbutton.png"), loadImage("minusbutton1.png"), loadImage("minusbuttonback.png")};
+  PImage[] play           = {loadImage("play1.png"), loadImage("play2.png"), loadImage("play3.png")};
+  PImage[] resetImg       = {loadImage("reset1.png"), loadImage("reset2.png"), loadImage("reset3.png")};
+  PImage[] stop           = {loadImage("stop1.png"), loadImage("stop2.png"), loadImage("stop3.png")};
+  PImage[] tombolview1    = {loadImage("view3d.png"), loadImage("view3d2.png"), loadImage("view3d3.png")};
+  PImage[] tombolview2    = {loadImage("tampakdepan.png"), loadImage("tampakdepan2.png"), loadImage("tampakdepan3.png")};
+  PImage[] tombolview3    = {loadImage("tampakbelakang.png"), loadImage("tampakbelakang2.png"), loadImage("tampakbelakang3.png")};
+  PImage[] tombolview4    = {loadImage("tampakkanan.png"), loadImage("tampakkanan2.png"), loadImage("tampakkanan3.png")};
+  PImage[] tombolview5    = {loadImage("tampakkiri.png"), loadImage("tampakkiri2.png"), loadImage("tampakkiri3.png")};
+  PImage[] tombolview6    = {loadImage("tampakatas.png"), loadImage("tampakatas2.png"), loadImage("tampakatas3.png")};
+  PImage[] tombolview7    = {loadImage("tampakbawah.png"), loadImage("tampakbawah2.png"), loadImage("tampakbawah3.png")};
+  PImage[] tombolview8    = {loadImage("eye1.png"), loadImage("eye2.png"), loadImage("eye3.png")};
+  PImage[] titlebar       = {loadImage("titlebar.png"),loadImage("titlebar.png"),loadImage("titlebar.png")};
+  PImage[] tomboldownload = {loadImage("download1.png"),loadImage("download2.png"),loadImage("download3.png")};
+  PImage[] record         = {loadImage("record1.png"),loadImage("record2.png"),loadImage("record3.png")};
+  PImage[] tombolconn     = {loadImage("connect1.png"),loadImage("connect2.png"),loadImage("connect3.png")};
+  PImage[] tomboldisconn  = {loadImage("disconnect1.png"),loadImage("disconnect2.png"),loadImage("disconnect3.png")};
   
   // Sekumpulan grup
   Group grupall = cp5.addGroup("allgrouptray")
@@ -111,7 +117,7 @@ class GUI {
                 .setColorBackground(color(255,188,0))
                 ;
  Group g6 = cp5.addGroup("Gyrosensors")
-                .setLabel("Roll and Pitch")
+                .setLabel("Real-time data log")
                 .setFont(createFont("Arial Black",10))
                 .setBarHeight(20)
                 .setColorLabel(color(255))
@@ -119,8 +125,8 @@ class GUI {
                 .setWidth(242)
                 .setBackgroundHeight(169)
                 .setBackgroundColor(color(20, 20, 20))
-                .setColorForeground(color(255,198,81))
-                .setColorBackground(color(255,188,0))
+                .setColorForeground(color(255,94,0))
+                .setColorBackground(color(255,60,0))
                 ;
  Group g7 = cp5.addGroup("Grupkamera")
                 .setLabel("")
@@ -475,9 +481,22 @@ class GUI {
        .updateSize()
        .setGroup(g8)
        ;
+  Button Butdown = cp5.addButton("Butdown")
+       .setPosition(-140, 75)
+       .setImages(tomboldownload)
+       .updateSize()
+       .setGroup(g8)
+       ;
+  Button Butrecord = cp5.addButton("Butrecord")
+       .setPosition(-140, 25)
+       .setSwitch(true)
+       .setImages(record)
+       .updateSize()
+       .setGroup(g8)
+       ;
    
   // Grup 2 monitoring sudut servo 
-  knobserv1 = cp5.addKnob("knob1")
+ knobserv1 = cp5.addKnob("knob1")
                 .setRange(-100,100)
                 .setPosition(13,17)
                 .setColorCaptionLabel(color(255))
@@ -720,9 +739,103 @@ cp5.addToggle("Precession")
                 chartyaw.addDataSet("incoming2");
                 chartyaw.setColors("incoming2", color(255,220,40));
                 chartyaw.setData("incoming2", new float[1000]);
+                
+ butdisconnect = cp5.addButton("butdisconnect")
+                 .setPosition(1140, 83)
+                 .setImages(tomboldisconn)
+                 .setVisible(true)
+                 ;
+ butconnect = cp5.addButton("butconnect")
+                 .setPosition(1140, 83)
+                 .setImages(tombolconn)
+                 .setVisible(true)
+                 ;
+
+                
+ cp5.addTextlabel("teksroll")
+    .setText("Roll :")
+    .setPosition(10,15+10)
+    .setFont(createFont("Arial", 15))
+    .setGroup(g6)
+    ;
+    rollvalue = cp5.addNumberbox("")
+                 .setSize(50, 30)
+                 .setLabelVisible(false)
+                 .setFont(createFont("Arial Black",12))
+                 .setColorBackground(color(128,0,0))
+                 .setColorForeground(color(255, 145, 0))
+                 .setPosition(60,10+10)
+                 .setGroup(g6)
+                 ;
+ cp5.addTextlabel("tekspitch")
+    .setText("Pitch :")
+    .setPosition(10,55+10)
+    .setFont(createFont("Arial", 15))
+    .setGroup(g6)
+    ;
+    pitchvalue = cp5.addNumberbox(" ")
+                 .setSize(50, 30)
+                 .setLabelVisible(false)
+                 .setFont(createFont("Arial Black",12))
+                 .setColorBackground(color(0,58,108))
+                 .setColorForeground(color(0, 99, 184))
+                 .setPosition(60,40+10+10)
+                 .setGroup(g6)
+                 ;
+ cp5.addTextlabel("teksyaw")
+    .setText("Yaw :")
+    .setPosition(10,95+10)
+    .setFont(createFont("Arial", 15))
+    .setGroup(g6)
+    ;
+    yawvalue = cp5.addNumberbox("  ")
+                 .setSize(50, 30)
+                 .setLabelVisible(false)
+                 .setFont(createFont("Arial Black",12))
+                 .setColorBackground(color(255, 111, 0))
+                 .setColorForeground(color(201, 108, 27))
+                 .setPosition(60,40+50+10)
+                 .setGroup(g6)
+                 ;
+                 
+cp5.addTextlabel("tekspidx")
+    .setText("PID X:")
+    .setPosition(10+114,15+10)
+    .setFont(createFont("Arial", 15))
+    .setGroup(g6)
+    ;
+    PIDx = cp5.addNumberbox("   ")
+                 .setSize(50, 30)
+                 .setLabelVisible(false)
+                 .setFont(createFont("Arial Black",12))
+                 .setColorBackground(color(128,0,0))
+                 .setColorForeground(color(255, 145, 0))
+                 .setPosition(60+115,10+10)
+                 .setGroup(g6)
+                 ;
+cp5.addTextlabel("tekspidy")
+    .setText("PID Y:")
+    .setPosition(10+114,55+10)
+    .setFont(createFont("Arial", 15))
+    .setGroup(g6)
+    ;
+    PIDy = cp5.addNumberbox("    ")
+                 .setSize(50, 30)
+                 .setLabelVisible(false)
+                 .setFont(createFont("Arial Black",12))
+                 .setColorBackground(color(0,58,108))
+                 .setColorForeground(color(0, 99, 184))
+                 .setPosition(60+115,40+10+10)
+                 .setGroup(g6)
+                 ;
 }
-   
- 
+
+public void copyrightGUI() {
+  // Copyright GUI builder
+  text("Developed By: Lukman Sidiq TRIK 19 || ©2021", 20, 880);
+  textFont(createFont("Arial", 10));
+  fill(255);
+}
 
 public void plusX(){
   if(minusX <= 1) {
