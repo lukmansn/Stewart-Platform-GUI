@@ -15,7 +15,7 @@ class stewartplatform {
    private final float beta[] = {0, -PI, PI*2/3, -PI/3, PI*4/3, -PI/3*5}; // 0, -180, 120, -60 (300), 240, -300 (60) //0, -PI, PI*2/3, -PI/3, PI*4/3, -PI/3*5
    
    // Spesifikasi ukuran Basis dan Platform ((dalam milimeter))
-   private final float skala_tinggi_awal = 160;           // mm
+   private final float skala_tinggi_awal = 160;          // mm
    private final float skala_radius_basis = 93.115;      // jari jari basis round 1 = 84.32 | jari jari basis round 2 = 93.115
    private final float skala_radius_platform = 79.253;   // jari jari platform
    private final float skala_panjang_arm = 30;
@@ -203,6 +203,7 @@ class stewartplatform {
         translate(posservo[i].x, posservo[i].y, -16);
         rotateZ(beta[i]);
         fill(126, 126, 126);
+        stroke(0);
         box(19.9, 37.5, 40);
         popMatrix();
       }
