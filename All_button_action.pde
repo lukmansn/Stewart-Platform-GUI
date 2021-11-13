@@ -54,6 +54,7 @@ void tampakbawah() {
 // button reset action
 void Butreset() {
     gui.Butreset();
+    prevmillis = millis();
 }
 
 // toggle switch motion digit and continous
@@ -102,7 +103,7 @@ void yawSHM(boolean theFlag) {
   } else {numbermotion = 0;}
 }
 
-void SB(boolean theFlag) {
+void SB(boolean theFlag) {  // self balancing button
   if(theFlag==true) {
     numbermotion = 7;
   } else {numbermotion = 0;}
