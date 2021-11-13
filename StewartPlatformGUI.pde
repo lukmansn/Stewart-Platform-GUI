@@ -1,7 +1,8 @@
- import java.util.Locale;
+import java.util.Locale;
 import processing.serial.*;
 import controlP5.*;
 import peasy.*;
+
 
 // define class
 Serial serial = null; 
@@ -10,9 +11,10 @@ PeasyCam camera;
 stewartplatform xPlatform;
 GUI gui;
 
-// define maximum trans and rot
-float MAX_TRANSLASI = 30;
-float MAX_ROTASI = radians(18); 
+
+// define multiplier trans and rot
+float Mult_TRANSLASI = 30;
+float Mult_ROTASI = radians(18); // atau di 18 derajat
 
 // define input variable
 float posX = 0, posY = 0, posZ = 0, rotX = 0, rotY = 0, rotZ = 0;
@@ -31,11 +33,13 @@ float[] datamasuk;
 String usbString;
 
 float satu, dua, tiga, empat, lima, enam;
-long eventInterval = 50, previousTime = 0;
+float previousTime = 0, prevcounter = 0, prevcounter1 = 0;
+int  prevmillis = 0;
+int timesampling = 0;
 
 int numbermotion = 0;
 float t = 0.0, dt = 0.1;
-float frequency = radians(50);
+float frequency = 1.5;
 PVector outplanar, outprecession, outverticalshm, outrollshm, outpitchshm, outyawshm, setpoint_balancing, rawdatain, rawdatain2;
 
 String[] Sendconvdata;
@@ -80,9 +84,9 @@ void draw() {
   // setup camera background
   camera.setActive(false);
   background(0);
-  surface.setTitle("Stewart platform GUI v1.0");
+  surface.setTitle("Stewart platform GUI ver.0.8 | Copyright ©2021");
   
- // calculate HARMONIC MOTION PLANNING
+  // calculate HARMONIC MOTION PLANNING
   if(numbermotion == 1) {
      calcplanar();
      xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*outplanar.x, outplanar.y, 0), Mult_TRANSLASI),
@@ -122,20 +126,21 @@ void draw() {
    
 // FOR SELF BALANCING INPUT DATA
    else if(numbermotion == 7) {
-     setupbalancing();
-     convertdata(0, 0, 0, setpoint_balancing.x, setpoint_balancing.y, setpoint_balancing.z, 1);
+     //setupbalancing();
+     convertdata(0, 0, 0, 0.001, 0.001, 0.001, 1);
+     //convertdata(0, 0, 0, setpoint_balancing.x, setpoint_balancing.y, setpoint_balancing.z, 1);
    }
   
   //  SLIDER CONTROL INPUT
   if(togglestate == true && numbermotion == 0) {
     xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*posX, posY, posZ), Mult_TRANSLASI),
     PVector.mult(new PVector(rotX, -1 * rotY, -1*rotZ), Mult_ROTASI));
-    convertdata(posX, posY, posZ, rotX, rotY, rotZ,0);
+    convertdata(posX, posY, posZ, rotX, rotY, rotZ, 0);
   }
     else if(togglestate == false && numbermotion == 0) {
       xPlatform.applyTranslasidanRotasi(PVector.mult(new PVector(-1*digiX, digiY, digiZ), Mult_TRANSLASI),
       PVector.mult(new PVector(digiRoll, -1*digiPitch, -1*digiYaw), Mult_ROTASI));
-      convertdata(digiX, digiY, digiZ, digiRoll, digiPitch, digiYaw,0);
+      convertdata(digiX, digiY, digiZ, digiRoll, digiPitch, digiYaw, 0);
   }
 
   // send data in array
@@ -143,15 +148,15 @@ void draw() {
   
   // send via serial monitor
   if(buttonsendstate == 1) {
-  // println(RotxTrans);
-  
-  // send input data via serial
-  long currentTime = millis();
-  if(currentTime - previousTime >= eventInterval){
     serial.write(RotxTrans);
-    serial.write("\n \r");
-    previousTime = currentTime;
-    }
+    
+  // send input data via serial
+  //float currentTime = millis();
+  //if(currentTime - previousTime >= 10){
+  //  serial.write(RotxTrans);
+  //  serial.write("\n \r");
+  //  previousTime = currentTime;
+  //  }
   }
   
   // monitoring update nilai input ke tampilan numberbox
@@ -171,38 +176,49 @@ void draw() {
   // gambar background grid
   gui.DrawGridbackground();
   
+  if(recordpress == true) {
+    Tablelogdata();
+  } else {
+  
+  }
+  
   hint(DISABLE_DEPTH_TEST);
   camera.beginHUD();
   cp5.draw();
   gui.copyrightGUI();
+  gui.titleGUI();
   camera.endHUD();
   hint(ENABLE_DEPTH_TEST);
 }
 
-// parseInt from arduino
 
 void serialEvent(Serial serial) {
+  
   try {
     usbString = serial.readStringUntil ('\n');
-
+    
     if (usbString != null) 
     {
       usbString = trim(usbString);
       //println(usbString);
     }
-
+    
     datamasuk = float(split(usbString, ','));
     float satu  = datamasuk[0];  // roll
     float dua   = datamasuk[1];  // pitch
     float tiga  = datamasuk[2];  // yaw
     float empat = datamasuk[3];  // PID roll
-    float lima  = datamasuk[4];  // PID yaw
+    float lima  = datamasuk[4];  // PID pitch
+    //float enam  = datamasuk[5];
+    //float tujuh = datamasuk[6];
+    //float delapan = datamasuk[7];
+
     
     rawdatain  = new PVector(satu,dua,tiga);
     rawdatain2 = new PVector(empat,lima,0.01);
-    
-    print("Debug PID = ");print(empat);print(","); print(lima); print(" || "); print("Debug IMU = "); print(satu); print(","); print(dua); print(","); print(tiga); 
-    println();
+
+    //print("Debug Outfuzzy = ");print(enam);print(","); print(tujuh);print(",");print(delapan); 
+    //println();
   }
   catch(RuntimeException e)
   {
@@ -212,25 +228,26 @@ void serialEvent(Serial serial) {
 
 void incomingmpu6050() {
   try {
-        // monitor and plot graphic from serial monitor
-        gui.chartroll.push("incoming",rawdatain.x);
-        gui.chartpitch.push("incoming1",rawdatain.y);
-        gui.chartyaw.push("incoming2",rawdatain.z);
+      // monitor and plot graphic from serial monitor
+      gui.chartroll.push("incoming",rawdatain.x);   // rawdatain.x
+      gui.chartpitch.push("incoming1",rawdatain.y); // rawdatain.y
+      gui.chartyaw.push("incoming2",rawdatain.z);   // rawdatain.z
   }
   catch(RuntimeException e) {
-    //null
+    // null
   }
 }
 
 void datarealtime() {
   try {
-      gui.rollvalue.setValue(rawdatain.x);
-      gui.pitchvalue.setValue(rawdatain.y);
-      gui.yawvalue.setValue(rawdatain.z);
-      gui.PIDx.setValue(rawdatain2.x);
-      gui.PIDy.setValue(rawdatain2.y);
+      gui.rollvalue.setValue(rawdatain.x);  // rawdatain.x
+      gui.pitchvalue.setValue(rawdatain.y); // rawdatain.y
+      gui.yawvalue.setValue(rawdatain.z);   // rawdatain.z
+      gui.PIDx.setValue(rawdatain2.x);      // rawdatain2.x
+      gui.PIDy.setValue(rawdatain2.y);      // rawdatain2.y
   }
   catch(RuntimeException e) {
+    // null
   }
 }
 
