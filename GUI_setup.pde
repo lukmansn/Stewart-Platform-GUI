@@ -1,6 +1,7 @@
 class GUI {
   private float x_pos, y_pos, z_pos, rollX, pitchY, yawZ;
   private float x, y, spasi, xmin, ymin, xplus, yplus, xplus1, yplus1,z;
+  PImage title = loadImage("titlebar.png");
   
   Numberbox incrementRot; Numberbox incrementTrans;
   Numberbox showX; Numberbox showY; Numberbox showZ; Numberbox showRoll; Numberbox showPitch; Numberbox showYaw;
@@ -31,11 +32,11 @@ class GUI {
   PImage[] tombolview6    = {loadImage("tampakatas.png"), loadImage("tampakatas2.png"), loadImage("tampakatas3.png")};
   PImage[] tombolview7    = {loadImage("tampakbawah.png"), loadImage("tampakbawah2.png"), loadImage("tampakbawah3.png")};
   PImage[] tombolview8    = {loadImage("eye1.png"), loadImage("eye2.png"), loadImage("eye3.png")};
-  PImage[] titlebar       = {loadImage("titlebar.png"),loadImage("titlebar.png"),loadImage("titlebar.png")};
   PImage[] tomboldownload = {loadImage("download1.png"),loadImage("download2.png"),loadImage("download3.png")};
   PImage[] record         = {loadImage("record1.png"),loadImage("record2.png"),loadImage("record3.png")};
   PImage[] tombolconn     = {loadImage("connect1.png"),loadImage("connect2.png"),loadImage("connect3.png")};
   PImage[] tomboldisconn  = {loadImage("disconnect1.png"),loadImage("disconnect2.png"),loadImage("disconnect3.png")};
+
   
   // Sekumpulan grup
   Group grupall = cp5.addGroup("allgrouptray")
@@ -150,14 +151,6 @@ class GUI {
                 .setColorBackground(color(0,0,0,0))
                 .setColorForeground(color(0,0,0))
                 ;
-   // grup all
-   Button titleimg = cp5.addButton("title")
-       .setPosition(20, 3)
-       .setImages(titlebar)
-       .setValue(0)
-       .updateSize()
-       .setGroup(grupall)
-       ;
                 
   // Isi grup 0
   slidX = cp5.addSlider("posX")
@@ -704,7 +697,7 @@ cp5.addToggle("Precession")
                 .setPosition(20,20)
                 .setCaptionLabel("Roll")
                 .setSize(450,150)
-                .setRange(-50,50)
+                .setRange(-20,20)
                 .setView(Chart.LINE)
                 .setStrokeWeight(2)
                 .setColorCaptionLabel(color(255))
@@ -718,7 +711,7 @@ cp5.addToggle("Precession")
                 .setPosition(20,20+150+20)
                 .setCaptionLabel("Pitch")
                 .setSize(450,150)
-                .setRange(-50,50)
+                .setRange(-20,20)
                 .setView(Chart.LINE)
                 .setStrokeWeight(2)
                 .setColorCaptionLabel(color(255))
@@ -730,7 +723,7 @@ cp5.addToggle("Precession")
                 .setPosition(20,20+150+20+150+20)
                 .setCaptionLabel("Yaw")
                 .setSize(450,150)
-                .setRange(-50,50)
+                .setRange(-20,20)
                 .setView(Chart.LINE)
                 .setStrokeWeight(2)
                 .setColorCaptionLabel(color(255))
@@ -835,6 +828,10 @@ public void copyrightGUI() {
   text("Developed By: Lukman Sidiq TRIK 19 || ©2021", 20, 880);
   textFont(createFont("Arial", 10));
   fill(255);
+}
+
+public void titleGUI() {
+  image(title,14,10);
 }
 
 public void plusX(){
