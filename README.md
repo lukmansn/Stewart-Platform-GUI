@@ -1,6 +1,6 @@
 # Stewart-Platform-GUI
-This is a code for stewart platform user interface 
-This user interface provides many features such as:
+This is a code for stewart platform user interface, 
+This user interface provides some features such as:
  - Monitoring part
    a. Servo angle monitor
    b. Output Response
