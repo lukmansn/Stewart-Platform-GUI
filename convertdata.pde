@@ -11,12 +11,3 @@ String[] convertdata(float a, float b, float c, float d, float e, float f, float
  
   return Sendconvdata;
 }
-// Backup converting
-  /*String sendX = String.format("%.2f",a);
-  String sendY = String.format("%.2f",b);
-  String sendZ = String.format("%.2f",c);
-  String sendRoll  = String.format("%.2f",d);
-  String sendPitch = String.format("%.2f",e);
-  String sendYaw   = String.format("%.2f",f);*/
-  
-  //String RotxTrans = "<"+sendX+ ","+sendY+","+sendZ+","+sendRoll+","+sendPitch+","+sendYaw;
