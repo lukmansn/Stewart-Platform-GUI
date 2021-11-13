@@ -15,11 +15,11 @@ class stewartplatform {
    private final float beta[] = {0, -PI, PI*2/3, -PI/3, PI*4/3, -PI/3*5}; // 0, -180, 120, -60 (300), 240, -300 (60) //0, -PI, PI*2/3, -PI/3, PI*4/3, -PI/3*5
    
    // Spesifikasi ukuran Basis dan Platform ((dalam milimeter))
-   private final float skala_tinggi_awal = 160;          // mm
+   private final float skala_tinggi_awal = 155;          // mm
    private final float skala_radius_basis = 93.115;      // jari jari basis round 1 = 84.32 | jari jari basis round 2 = 93.115
    private final float skala_radius_platform = 79.253;   // jari jari platform
-   private final float skala_panjang_arm = 30;
-   private final float skala_panjang_kaki = 175;         // panjang rod 17.5 cm
+   private final float skala_panjang_arm = 24;
+   private final float skala_panjang_kaki = 165;         // panjang rod 16.5 cm
    
    public stewartplatform(float prod) {
      translasi = new PVector();
