@@ -29,6 +29,5 @@ This user interface provides many features such as:
    b. download data
 
 Default condition:
-Baudrate = 115200
-
-   
+- Baudrate = 115200
+- port serial = COM3
