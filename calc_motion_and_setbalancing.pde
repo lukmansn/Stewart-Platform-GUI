@@ -23,7 +23,7 @@ void calcverticalshm() {
 }
 
 void calcrollshm() {
-  float amplitud = 0.5;
+  float amplitud = 0.45;
   float rollshmX = amplitud * sin(frequency*t);
   t += dt;
   outrollshm = new PVector(rollshmX,0,0);
@@ -43,6 +43,6 @@ void calcyawshm() {
   outyawshm = new PVector(0,0,yawshmZ);
 }
 
-void setupbalancing() {
-  setpoint_balancing = new PVector(0.04, 0.04, 0.01);
-}
+//void setupbalancing() {
+//  setpoint_balancing = new PVector(0, 0, 0);
+//}
